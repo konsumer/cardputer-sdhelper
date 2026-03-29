@@ -1,0 +1,34 @@
+<html>
+	<head>
+		<title>Cardputer</title>
+	</head>
+	<body>
+		<canvas id="canvas"></canvas>
+	</body>
+	<script type="module">
+		import loadFW from './index.mjs'
+		const canvas = document.getElementById('canvas');
+		const m = await loadFW({ canvas })
+
+		// You can use web APIs to test things
+
+		// LoRa
+		m.loraOut = bytes => console.log('LoRa sent:', bytes)
+		m.loraInject(new TextEncoder().encode("Hello from web."))
+
+		// GPS
+		m.satelliteCount = 5
+		m.gpsSet(51.5074, -0.1278)
+
+		// Motion — ax,ay,az (G), gx,gy,gz (deg/s), temp (°C, optional)
+		m.motionSet(0, 0, 1,  0, 0, 0,  25.0)
+
+		// IR is TX-only — hook outgoing transmissions
+		m.irOut = pkt => console.log('IR sent:', pkt) // { protocol, address, command }
+
+		// Power — set simulated battery state (read each frame by c.batteryLevel() etc.)
+		m.batteryLevel   = 85      // 0–100 %
+		m.batteryVoltage = 3900    // mV
+		m.isCharging     = false
+	</script>
+</html>

@@ -1,0 +1,58 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
+      - name: Cache M5GFX object files
+        uses: actions/cache@v4
+        with:
+          path: .pio/build/web
+          key: m5gfx-emcc-${{ hashFiles('.pio/libdeps/native/M5GFX/src/**') }}-${{ hashFiles('scripts/build_web.sh') }}
+          restore-keys: m5gfx-emcc-
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Install PlatformIO dependencies
+        run: pio pkg install
+
+      - name: Build web
+        run: bash scripts/build_web.sh --release
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

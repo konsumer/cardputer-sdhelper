@@ -1,0 +1,11 @@
+{
+	"scripts": {
+		"postinstall": "pio pkg install",
+		"web:build": "bash scripts/build_web.sh",
+		"start": "npx -y npm-run-all -p web:watch web:server",
+		"web:server": "npx -y live-server web",
+		"web:watch": "npx -y nodemon -e cpp,c,h,hpp --exec 'npm run web:build' -w src",
+		"cardputer": "pio run -e cardputer -t upload",
+		"native": "pio run -e native && .pio/build/native/program"
+	}
+}
