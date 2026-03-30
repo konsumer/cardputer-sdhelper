@@ -1,5 +1,6 @@
 {
 	"scripts": {
-		"build": "pio run -e cardputer -t upload"
+		"upload": "pio run -e cardputer -t upload",
+		"build": "pio run -e cardputer && cp .pio/build/cardputer/firmware.bin sdhelper.bin"
 	}
 }
